@@ -1,9 +1,14 @@
 import { prisma } from "../lib/prisma.js"
 import { genPass } from "../lib/utils.js"
+import jwt from 'jsonwebtoken'
 
 
 export function test (req, res) {
     return res.json({ message: 'Got the JSON' })
+}
+
+export function underJWT (req, res) {
+    return res.json({ message: 'Got through JWT' })
 }
 
 export async function register (req, res) {
@@ -48,12 +53,10 @@ export function login (req, res) {
     // issue a jwt (later)
     const user = req.user
 
-    return res.json({ user, message: 'A jwt here yeh' })
-    // const payload = { id: user.id, email: user.email, username: user.username }
+    const payload = { id: user.id, email: user.email, username: user.username }
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-    // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
-
-    // return res.status(200).json({
-    //     token
-    // })
+    return res.status(200).json({
+        token
+    })
 }

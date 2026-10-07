@@ -6,6 +6,7 @@ import passport from 'passport'
 import { indexRouter } from './routes/indexRouter.js'
 
 import './passport/local.js'
+import './passport/jwt.js'
 
 const app = express()
 
