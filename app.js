@@ -1,13 +1,18 @@
 import express from 'express'
 import { configDotenv } from "dotenv"
 configDotenv()
+import passport from 'passport'
 
 import { indexRouter } from './routes/indexRouter.js'
+
+import './passport/local.js'
 
 const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use(passport.initialize())
 
 app.use('/', indexRouter)
 
