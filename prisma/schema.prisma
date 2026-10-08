@@ -18,5 +18,55 @@ model User {
   username  String @unique 
   hash String 
 
+  participant   participant[]
+  messages    message[]
+
   @@unique([id, username])
 } 
+
+enum ConvType {
+  DIRECT 
+  GROUP
+}
+
+enum Role {
+  MEMBER 
+  ADMIN
+}
+
+
+model Conversation {
+  id    String    @id @default(cuid())
+  type    ConvType    @default(DIRECT)
+  name    String?
+  directKey   String?   @unique
+  createdAt   DateTime    @default(now())
+  participants participant[]
+  messages    message[]
+}
+
+model participant {
+  convId    String
+  userId    Int
+  role    Role    @default(MEMBER)
+  joinedAt    DateTime @default(now())
+
+  conversation    Conversation    @relation(fields: [convId], references: [id], onDelete: Cascade) 
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([convId, userId])
+  @@index([userId])
+}
+
+model message {
+  id    Int   @id @default(autoincrement())
+  convId    String
+  senderId    Int? 
+  text    String 
+  createdAt   DateTime    @default(now())
+
+  conversation    Conversation    @relation(fields: [convId], references: [id], onDelete: Cascade)
+  sender    User?    @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  @@index([convId, createdAt])
+}
