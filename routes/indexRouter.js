@@ -6,7 +6,8 @@ import {
     underJWT, 
     getAllConv, 
     getConv, 
-    sendMessage
+    sendMessage,
+    sendFriendReq
 } from "../controllers/indexController.js"; 
 import passport from "passport";
 
@@ -23,3 +24,4 @@ indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAl
 indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }), getConv)
 
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
+indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)

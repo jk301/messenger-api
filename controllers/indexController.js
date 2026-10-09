@@ -149,3 +149,36 @@ export async function sendMessage (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function sendFriendReq (req, res) {
+    const user = req.user
+    const receiverId = Number(req.params.receiverId)
+
+    if (!Number.isInteger(receiverId)) return res.status(400).json({ error: "Receiver's id is invalid" })
+
+    if (user.id === receiverId) return res.status(400).json({ error: "Can't send a request to yourself :(" })
+
+    try {
+        const recUser = await prisma.user.findUnique({ where: { id: receiverId } })
+        if (!recUser) return res.status(404).json({ error: "User not found" })
+        
+        const key = makeDirectKey(user.id, receiverId)
+        const alrExist = await prisma.friend.findUnique({
+            where: { pairKey: key }
+        })
+        if (alrExist) return res.status(409).json({ error: "A request already exist." })
+
+        await prisma.friend.create({
+            data: {
+                senderId: user.id, 
+                receiverId, 
+                pairKey: key
+            }
+        })
+
+        return res.status(201).json({ message: "Friend request sent." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
