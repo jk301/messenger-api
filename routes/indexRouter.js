@@ -9,7 +9,8 @@ import {
     sendMessage,
     sendFriendReq,
     acceptReq,
-    getAllFriends
+    getAllFriends,
+    rejectReq
 } from "../controllers/indexController.js"; 
 import passport from "passport";
 
@@ -29,3 +30,4 @@ indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), ge
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
 indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }), acceptReq)
+indexRouter.post('/friend/:reqId/reject', passport.authenticate('jwt', { session: false }), rejectReq)
