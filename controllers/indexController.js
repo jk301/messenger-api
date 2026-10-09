@@ -60,3 +60,29 @@ export function login (req, res) {
         token
     })
 }
+
+function makeDirectKey (a, b) {
+    return [a, b].sort((x, y) => x - y).join(':')
+}
+
+export async function getAllConv (req, res) {
+    const user = req.user
+
+    try {
+
+        const conv = await prisma.conversation.findMany({
+            where: {
+                participants: {
+                    some: { userId: user.id }
+                }
+            }, 
+        })
+
+        return res.status(200).json({ conv })
+
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

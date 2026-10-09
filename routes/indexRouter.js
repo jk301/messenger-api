@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { register, login, test, underJWT } from "../controllers/indexController.js"; 
+import {
+    register, 
+    login, 
+    test, 
+    underJWT, 
+    getAllConv 
+} from "../controllers/indexController.js"; 
 import passport from "passport";
 
 export const indexRouter = Router()
@@ -11,3 +17,4 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 
 // protected by jwt
 indexRouter.get('/protected', passport.authenticate('jwt', { session: false }), underJWT)
+indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)
