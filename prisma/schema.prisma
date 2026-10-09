@@ -23,8 +23,6 @@ model User {
 
   sentRequests   Friend[]    @relation("sent")
   receivedRequests    Friend[]    @relation("received")
-
-  @@unique([id, username])
 } 
 
 enum ConvType {
