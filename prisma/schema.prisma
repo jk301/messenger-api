@@ -21,6 +21,9 @@ model User {
   participant   participant[]
   messages    message[]
 
+  sentRequests   Friend[]    @relation("sent")
+  receivedRequests    Friend[]    @relation("received")
+
   @@unique([id, username])
 } 
 
@@ -32,6 +35,12 @@ enum ConvType {
 enum Role {
   MEMBER 
   ADMIN
+}
+
+enum FriendStatus {
+  PENDING 
+  ACCEPTED 
+  REJECTED 
 }
 
 
@@ -69,4 +78,14 @@ model message {
   sender    User?    @relation(fields: [senderId], references: [id], onDelete: SetNull)
 
   @@index([convId, createdAt])
+}
+
+model Friend {
+  id    Int   @id @default(autoincrement())
+  senderId    Int
+  receiverId    Int 
+  status    FriendStatus    @default(PENDING)
+
+  sender    User?   @relation("sent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User?   @relation("received", fields: [receiverId], references: [id], onDelete: Cascade)
 }

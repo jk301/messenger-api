@@ -117,3 +117,35 @@ export async function getConv (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function sendMessage (req, res) {
+    const user = req.user
+    const { convId } = req.params
+    const { text } = req.body
+
+    if (!text) return res.status(400).json({ error: "Message body is empty" })
+    
+    try {
+        const isMember = await prisma.participant.findUnique({
+            where: { convId_userId: { convId, userId: user.id } }
+        })
+        if (!isMember) {
+            return res.status(403).json({
+                error: 'You are not authorized for sending message in this conversation.' 
+            })
+        }
+        
+        const message = await prisma.message.create({
+            data: {
+                convId, 
+                senderId: user.id, 
+                text
+            }
+        })
+
+        return res.status(201).json({ message })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

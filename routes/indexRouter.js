@@ -5,7 +5,8 @@ import {
     test, 
     underJWT, 
     getAllConv, 
-    getConv 
+    getConv, 
+    sendMessage
 } from "../controllers/indexController.js"; 
 import passport from "passport";
 
@@ -20,3 +21,5 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 indexRouter.get('/protected', passport.authenticate('jwt', { session: false }), underJWT)
 indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)
 indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }), getConv)
+
+indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
