@@ -86,3 +86,34 @@ export async function getAllConv (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function getConv (req, res) {
+    const user = req.user
+    const { convId } = req.params
+
+    try {
+        const isMember = await prisma.participant.findUnique({
+            where: { convId_userId: { convId, userId: user.id } }
+        })
+        if (!isMember) {
+            return res.status(403).json({
+                error: 'You are not authorized to see this conversation.' 
+            })
+        }
+
+        const conv = await prisma.conversation.findUnique({
+            where: { id: convId }, 
+            include: {
+                participants: true, 
+                messages: true
+            }
+        })
+        if (!conv) return res.status(404).json({ error: "Conversation doesn't exist." })
+        
+        return res.status(200).json({ conv })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
