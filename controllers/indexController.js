@@ -210,3 +210,39 @@ export async function acceptReq (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function getAllFriends (req, res) {
+    const user = req.user
+
+    try {
+        
+        const result = await prisma.friend.findMany({
+            where: {
+                OR: [
+                    { receiverId: user.id }, 
+                    { senderId: user.id }
+                ],
+                AND: [
+                    { status: 'ACCEPTED' }
+                ]
+            }, 
+            select: {
+                id: true, 
+                sender: { select: { id: true, username: true } }, 
+                receiver: { select: { id: true, username: true } }
+            }
+        })
+
+        const friends = result.map(f => { 
+            return { 
+                reqId: f.id, 
+                friend: f.sender.id === user.id ? f.receiver : f.sender 
+            }
+        })
+
+        return res.status(200).json({ friends })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

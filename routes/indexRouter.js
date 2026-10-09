@@ -7,7 +7,9 @@ import {
     getAllConv, 
     getConv, 
     sendMessage,
-    sendFriendReq
+    sendFriendReq,
+    acceptReq,
+    getAllFriends
 } from "../controllers/indexController.js"; 
 import passport from "passport";
 
@@ -22,7 +24,8 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 indexRouter.get('/protected', passport.authenticate('jwt', { session: false }), underJWT)
 indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)
 indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }), getConv)
+indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), getAllFriends)
 
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
-indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }))
+indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }), acceptReq)
