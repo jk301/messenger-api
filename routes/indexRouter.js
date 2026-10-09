@@ -25,3 +25,4 @@ indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }
 
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
+indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }))

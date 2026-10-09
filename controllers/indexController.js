@@ -182,3 +182,31 @@ export async function sendFriendReq (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function acceptReq (req, res) {
+    const user = req.user
+    const reqId = Number(req.params.reqId)
+
+    if (!Number.isInteger(reqId)) return res.status(400).json({ error: "Friend request id is invalid" })
+
+    try {
+        const alrAccp = await prisma.friend.findUnique({
+            where: { id: reqId }
+        })
+        if (!alrAccp) return res.status(404).json({ error: "Request doesn't exist" })
+        if (alrAccp.receiverId !== user.id) return res.status(403).json({ error: "Not your request" })
+        if (alrAccp.status !== "PENDING") {
+            return res.status(409).json({ error: "Request is no longer pending" })
+        }
+
+        await prisma.friend.update({
+            where: { id: reqId }, 
+            data: { status: 'ACCEPTED' }
+        })
+        
+        return res.status(200).json({ message: "Friend request accepted" })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
