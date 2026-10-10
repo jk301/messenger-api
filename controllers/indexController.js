@@ -306,3 +306,49 @@ export async function removeFriend (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function createDirectConv (req, res) {
+    const user = req.user
+    const otherId = Number(req.params.otherId)
+
+    if (!Number.isInteger(otherId)) {
+        return res.status(400).json({ error: "Friend's user id is invalid" })
+    } 
+    if (otherId === user.id) {
+        return res.status(400).json({ error: "Can't start a conversation with yourself" })
+    }
+
+    try {
+        const otherUser = await prisma.user.findUnique({ where: { id: otherId } })
+        if (!otherUser) return res.status(404).json({ error: "Friend's account doesn't exist" })
+
+        const key = makeDirectKey(user.id, otherId)
+
+        const areFriends = await prisma.friend.findUnique({ where: { pairKey: key } })
+        if (!areFriends) {
+            return res.status(403).json({ error: "Need to be friends for conversation" })
+        }
+        if (areFriends.status !== "ACCEPTED") {
+            return res.status(403).json({ error: "Friend request needs to be accepted for conversation" })
+        }
+        
+        const directConv = await prisma.conversation.upsert({
+            where: { directKey: key }, 
+            update: {}, 
+            create: {
+                type: 'DIRECT', 
+                directKey: key, 
+                participants: {
+                    create: [{ userId: user.id}, { userId: otherId }]
+                }
+            },
+            include: { participants: true, messages: true }
+        })
+
+        return res.status(200).json({ directConv })
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
