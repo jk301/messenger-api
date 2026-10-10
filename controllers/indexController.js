@@ -274,3 +274,35 @@ export async function getAllFriends (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function removeFriend (req, res) {
+    const user = req.user
+    const reqId = Number(req.params.reqId)
+
+    if (!Number.isInteger(reqId)) return res.status(400).json({ error: "Friend request id is invalid" })
+
+    try {
+        const exist = await prisma.friend.findUnique({
+            where: { id: reqId }
+        })
+        if (!exist) return res.status(404).json({ error: "Request doesn't exist" })
+        if (exist.receiverId !== user.id && exist.senderId !== user.id) {
+            return res.status(403).json({ error: "You aren't authorized" })
+        }
+        if (exist.status === 'REJECTED' && exist.senderId === user.id) {
+            return res.status(403).json({ error: "Rejected by the user" })
+        } 
+        if (exist.status === 'PENDING' && exist.receiverId === user.id) {
+            return res.status(403).json({ error: "Only the sender can delete a request" })
+        }
+
+        await prisma.friend.delete({
+            where: { id: reqId }
+        })
+        
+        return res.status(200).json({ message: "Removed" })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
