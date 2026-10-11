@@ -131,6 +131,68 @@ export async function getAllSentReq (req, res) {
     }
 }
 
+export async function getFriendsRejected (req, res) {
+    const user = req.user
+
+    try {
+        const result = await prisma.friend.findMany({
+            where: {
+                AND: [
+                    { receiverId: user.id },
+                    { status: 'REJECTED' }
+                ]
+            }, 
+            select: {
+                id: true, 
+                sender: { select: { id: true, username: true } }, 
+            }
+        })
+
+        const friends = result.map(f => { 
+            return { 
+                reqId: f.id, 
+                friend: f.sender 
+            }
+        })
+
+        return res.status(200).json({ friends })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function getSentRejected (req, res) {
+    const user = req.user
+
+    try {
+        const result = await prisma.friend.findMany({
+            where: {
+                AND: [
+                    { senderId: user.id },
+                    { status: 'REJECTED' }
+                ]
+            }, 
+            select: {
+                id: true, 
+                receiver: { select: { id: true, username: true } }, 
+            }
+        })
+
+        const friends = result.map(f => { 
+            return { 
+                reqId: f.id, 
+                friend: f.receiver 
+            }
+        })
+
+        return res.status(200).json({ friends })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
 export async function getAllfriendReq (req, res) {
     const user = req.user
 
