@@ -7,13 +7,15 @@ import {
     getAllConv, 
     getConv, 
     sendMessage,
-    sendFriendReq,
-    acceptReq,
-    getAllFriends,
-    rejectReq,
-    removeFriend,
     createDirectConv
 } from "../controllers/indexController.js"; 
+import {
+    sendFriendReq, 
+    getAllFriends, 
+    acceptReq, 
+    rejectReq, 
+    removeFriend
+} from '../controllers/friendController.js'
 import passport from "passport";
 
 export const indexRouter = Router()
@@ -25,13 +27,17 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 
 // protected by jwt
 indexRouter.get('/protected', passport.authenticate('jwt', { session: false }), underJWT)
+
+// Conversation
 indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)
 indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }), getConv)
-indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), getAllFriends)
-
-indexRouter.post('/conv/:otherId/create',passport.authenticate('jwt', { session: false }), createDirectConv )
-
+indexRouter.post('/conv/:otherId/create',passport.authenticate('jwt', { session: false }), 
+createDirectConv )
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
+
+
+// Friend routes
+indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), getAllFriends)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
 indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }), acceptReq)
 indexRouter.post('/friend/:reqId/reject', passport.authenticate('jwt', { session: false }), rejectReq)
