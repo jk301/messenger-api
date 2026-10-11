@@ -4,6 +4,33 @@ function makeDirectKey (a, b) {
     return [a, b].sort((x, y) => x - y).join(':')
 }
 
+export async function searchUsers (req, res) {
+    const user = req.user
+    const { name } = req.query
+
+    if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ error: 'Search term is needed' })
+    }
+
+    try {
+        
+        const result = await prisma.user.findMany({
+            where: {
+                username: { contains: name.trim(), mode: 'insensitive' }
+            },
+            select: {
+                id: true, 
+                username: true
+            }
+        })
+
+        return res.status(200).json({ result })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
 export async function sendFriendReq (req, res) {
     const user = req.user
     const receiverId = Number(req.params.receiverId)

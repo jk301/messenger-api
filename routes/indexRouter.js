@@ -2,8 +2,6 @@ import { Router } from "express";
 import {
     register, 
     login, 
-    test, 
-    underJWT, 
     getAllConv, 
     getConv, 
     sendMessage,
@@ -14,7 +12,8 @@ import {
     getAllFriends, 
     acceptReq, 
     rejectReq, 
-    removeFriend
+    removeFriend,
+    searchUsers
 } from '../controllers/friendController.js'
 import passport from "passport";
 
@@ -34,6 +33,8 @@ indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session
 
 
 // Friend routes
+
+indexRouter.get('/users/search', passport.authenticate('jwt', { session: false }), searchUsers)
 indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), getAllFriends)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
 indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }), acceptReq)
