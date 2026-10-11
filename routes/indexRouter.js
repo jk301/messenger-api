@@ -20,13 +20,10 @@ import passport from "passport";
 
 export const indexRouter = Router()
 
-indexRouter.get('/', test)
-
 indexRouter.post('/register', register)
 indexRouter.post('/login', passport.authenticate('local', { session: false }), login)
 
 // protected by jwt
-indexRouter.get('/protected', passport.authenticate('jwt', { session: false }), underJWT)
 
 // Conversation
 indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)

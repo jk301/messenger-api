@@ -3,14 +3,6 @@ import { genPass } from "../lib/utils.js"
 import jwt from 'jsonwebtoken'
 
 
-export function test (req, res) {
-    return res.json({ message: 'Got the JSON' })
-}
-
-export function underJWT (req, res) {
-    return res.json({ message: 'Got through JWT' })
-}
-
 export async function register (req, res) {
     const email = req.body.email
     const username = req.body.username
