@@ -14,7 +14,8 @@ import {
     rejectReq, 
     removeFriend,
     searchUsers,
-    getAllSentReq
+    getAllSentReq,
+    getAllfriendReq
 } from '../controllers/friendController.js'
 import passport from "passport";
 
@@ -39,6 +40,7 @@ indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session
 indexRouter.get('/users/search', passport.authenticate('jwt', { session: false }), searchUsers)
 indexRouter.get('/friends', passport.authenticate('jwt', { session: false }), getAllFriends)
 indexRouter.get('/friends/sent', passport.authenticate('jwt', { session: false }), getAllSentReq)
+indexRouter.get('/friends/received', passport.authenticate('jwt', { session: false }), getAllfriendReq)
 indexRouter.post('/friend/:receiverId/request', passport.authenticate('jwt', { session: false }), sendFriendReq)
 indexRouter.post('/friend/:reqId/accept', passport.authenticate('jwt', { session: false }), acceptReq)
 indexRouter.post('/friend/:reqId/reject', passport.authenticate('jwt', { session: false }), rejectReq)
