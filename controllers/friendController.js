@@ -16,12 +16,15 @@ export async function searchUsers (req, res) {
         
         const result = await prisma.user.findMany({
             where: {
+                id: { not: user.id }, 
                 username: { contains: name.trim(), mode: 'insensitive' }
             },
             select: {
                 id: true, 
                 username: true
-            }
+            }, 
+            orderBy: { username: 'asc' }, 
+            take: 30
         })
 
         return res.status(200).json({ result })
