@@ -100,6 +100,37 @@ export async function getAllFriends (req, res) {
     }
 }
 
+export async function getAllSentReq (req, res) {
+    const user = req.user
+
+    try {
+        const result = await prisma.friend.findMany({
+            where: {
+                AND: [
+                    { status: 'PENDING' }, 
+                    { senderId: user.id }
+                ]
+            }, 
+            select: {
+                id: true, 
+                receiver: { select: { id: true, username: true } }
+            }
+        })
+
+        const friends = result.map(f => { 
+            return { 
+                reqId: f.id, 
+                friend: f.receiver
+            }
+        })
+
+        return res.status(200).json({ friends })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
 export async function acceptReq (req, res) {
     const user = req.user
     const reqId = Number(req.params.reqId)
