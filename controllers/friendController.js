@@ -263,8 +263,8 @@ export async function rejectReq (req, res) {
             where: { id: reqId }
         })
         if (!alrRej) return res.status(404).json({ error: "Request doesn't exist" })
-        if (alrAccp.receiverId !== user.id) return res.status(403).json({ error: "Not your request" })
-        if (alrAccp.status !== "PENDING") {
+        if (alrRej.receiverId !== user.id) return res.status(403).json({ error: "Not your request" })
+        if (alrRej.status !== "PENDING") {
             return res.status(409).json({ error: "Request is no longer pending" })
         }
 
