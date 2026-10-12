@@ -130,3 +130,30 @@ export async function createDirectConv (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function createGroup (req, res) {
+    const user = req.user
+    const { groupName } = req.body
+
+    if (typeof groupName !== 'string' || !groupName.trim()) {
+        return res.status(400).json({ error: 'Group name is required' })
+    }
+
+    try {
+        const group = await prisma.conversation.create({
+            data: {
+                type: 'GROUP', 
+                name: groupName.trim(),
+                participants: {
+                    create: [{ userId: user.id, role: 'ADMIN'}]
+                }
+            },
+            include: { participants: true, messages: true }
+        })
+        
+        return res.status(201).json({ group })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

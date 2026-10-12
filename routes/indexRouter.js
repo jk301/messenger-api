@@ -7,7 +7,8 @@ import {
     getAllConv, 
     getConv, 
     sendMessage, 
-    createDirectConv
+    createDirectConv,
+    createGroup
 } from '../controllers/convController.js'
 import {
     sendFriendReq, 
@@ -37,6 +38,10 @@ indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }
 indexRouter.post('/conv/:otherId/create',passport.authenticate('jwt', { session: false }), 
 createDirectConv )
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
+
+// Group
+
+indexRouter.post('/conv/group/create', passport.authenticate('jwt', { session: false }), createGroup)
 
 
 // Friend routes
