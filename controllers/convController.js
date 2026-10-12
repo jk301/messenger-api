@@ -255,3 +255,30 @@ export async function removeFromGroup (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function deleteGroup (req, res) {
+    const user = req.user
+    const groupId =req.params.groupId
+
+    try {
+        const group = await prisma.conversation.findUnique({
+            where: { id: groupId }, 
+            include: { participants: true }
+        })
+        if (!group) return res.status(403).json({ error: "You don't have access to this group" })
+        if (group.type !== 'GROUP') return res.status(403).json({ error: "Conversation isn't a group" })
+
+        const self = group.participants.find( p => p.userId === user.id )
+        if (!self) return res.status(403).json({ error: "You don't have access to this group" })
+        if (self.role !== 'ADMIN') {
+            return res.status(403).json({ error: "Only an ADMIN can delete a group (you are not)" })
+        }
+
+        await prisma.conversation.delete({ where: { id: groupId } })
+
+        return res.status(200).json({ message: 'Group deleted.' })        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

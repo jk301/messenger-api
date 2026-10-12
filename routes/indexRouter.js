@@ -10,7 +10,8 @@ import {
     createDirectConv,
     createGroup,
     addToGroup,
-    removeFromGroup
+    removeFromGroup,
+    deleteGroup
 } from '../controllers/convController.js'
 import {
     sendFriendReq, 
@@ -46,7 +47,7 @@ indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session
 indexRouter.post('/conv/group/create', passport.authenticate('jwt', { session: false }), createGroup)
 indexRouter.post('/conv/:groupId/add/:userId', passport.authenticate('jwt', { session: false }), addToGroup)
 indexRouter.post('/conv/:groupId/remove/:userId', passport.authenticate('jwt', { session: false }), removeFromGroup)
-// indexRouter.delete('/conv/:groupId/delete', passport.authenticate('jwt', { session: false }))
+indexRouter.delete('/conv/:groupId/delete', passport.authenticate('jwt', { session: false }), deleteGroup)
 
 
 // Friend routes
