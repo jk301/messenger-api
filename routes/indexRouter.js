@@ -2,11 +2,13 @@ import { Router } from "express";
 import {
     register, 
     login, 
+} from "../controllers/indexController.js"; 
+import {
     getAllConv, 
     getConv, 
-    sendMessage,
+    sendMessage, 
     createDirectConv
-} from "../controllers/indexController.js"; 
+} from '../controllers/convController.js'
 import {
     sendFriendReq, 
     getAllFriends, 
@@ -16,7 +18,6 @@ import {
     searchUsers,
     getAllSentReq,
     getAllfriendReq,
-    getAllRejected,
     getFriendsRejected,
     getSentRejected
 } from '../controllers/friendController.js'
