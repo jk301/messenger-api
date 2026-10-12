@@ -85,6 +85,6 @@ model Friend {
   status    FriendStatus    @default(PENDING)
   pairKey   String   @unique
 
-  sender    User?   @relation("sent", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver    User?   @relation("received", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender    User   @relation("sent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User   @relation("received", fields: [receiverId], references: [id], onDelete: Cascade)
 }

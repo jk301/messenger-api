@@ -52,3 +52,91 @@ export function login (req, res) {
         token
     })
 }
+
+export async function getProfile (req, res) {
+    const user = req.user
+
+    try {
+        const profile = await prisma.user.findUnique({
+            where: { id: user.id }, 
+            select: { id: true, username: true, email: true }
+        })
+
+        if (!profile) return res.status(401).json({ error: "Profile data is not available" })
+
+        return res.status(200).json({ profile })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function changePassword (req, res) {
+    const user = req.user
+    const { password } = req.body
+
+    try {
+        const profile = await prisma.user.findUnique({ where: { id: user.id } })
+        if (!profile) return res.status(404).json({ error: "Profile data is not available" })
+
+        const hashed = await genPass(password)
+
+        const updated = await prisma.user.update({
+            where: { id: user.id }, 
+            data: { hash: hashed }, 
+            select: { id: true, username: true, email: true }
+        })
+        
+        return res.status(200).json({ message: "Password updated", updated })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function changeUsername (req, res) {
+    const user = req.user
+    const username = req.body.username.trim()
+
+    if (typeof username !== 'string' || !username.trim()) {
+        return res.status(400).json({ error: "Username is invalid" })
+    } 
+
+    try {
+        const profile = await prisma.user.findUnique({ where: { id: user.id } })
+        if (!profile) return res.status(404).json({ error: "Profile data is not available" })
+        if (profile.username === username) {
+            return res.status(409).json({ error: "Username is the same as the existing one" })
+        }
+
+        const alrExist = await prisma.user.findUnique({ where: { username } })
+        if (alrExist) return res.status(409).json({ error: "Username already taken" })
+
+        const updated = await prisma.user.update({
+            where: { id: user.id }, 
+            data: { username }, 
+            select: { id: true, username: true, email: true }
+        })
+        
+        return res.status(200).json({ message: "Username updated", updated })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function deleteUser (req, res) {
+    const user = req.user
+
+    try {
+        const profile = await prisma.user.findUnique({ where: { id: user.id } })
+        if (!profile) return res.status(404).json({ error: "Profile data is not available" })
+
+        await prisma.user.delete({ where: { id: user.id } })
+
+        return res.status(200).json({ message: "User deleted" })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}

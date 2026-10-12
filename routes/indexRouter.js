@@ -1,7 +1,11 @@
 import { Router } from "express";
 import {
     register, 
-    login, 
+    login,
+    getProfile,
+    changePassword,
+    changeUsername,
+    deleteUser, 
 } from "../controllers/indexController.js"; 
 import {
     getAllConv, 
@@ -35,11 +39,19 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 
 // protected by jwt
 
+// Profile 
+
+indexRouter.get('/profile', passport.authenticate('jwt', { session: false }), getProfile)
+indexRouter.patch('/profile/change/username', passport.authenticate('jwt', { session: false }), changeUsername)
+indexRouter.patch('/profile/change/password', passport.authenticate('jwt', { session: false }), changePassword)
+indexRouter.delete('/profile', passport.authenticate('jwt', { session: false }), deleteUser)
+
+
 // Conversation
 
 indexRouter.get('/conv', passport.authenticate('jwt', { session: false }), getAllConv)
 indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }), getConv)
-indexRouter.post('/conv/:otherId/create',passport.authenticate('jwt', { session: false }), 
+indexRouter.post('/conv/direct/create/:otherId',passport.authenticate('jwt', { session: false }), 
 createDirectConv )
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
 
@@ -49,7 +61,7 @@ indexRouter.post('/conv/group/create', passport.authenticate('jwt', { session: f
 indexRouter.post('/conv/:groupId/add/:userId', passport.authenticate('jwt', { session: false }), addToGroup)
 indexRouter.post('/conv/:groupId/admin/:userId', passport.authenticate('jwt', { session: false }), makeAdmin)
 indexRouter.post('/conv/:groupId/remove/:userId', passport.authenticate('jwt', { session: false }), removeFromGroup)
-indexRouter.delete('/conv/:groupId/delete', passport.authenticate('jwt', { session: false }), deleteGroup)
+indexRouter.delete('/conv/:groupId', passport.authenticate('jwt', { session: false }), deleteGroup)
 
 
 // Friend routes
