@@ -157,3 +157,101 @@ export async function createGroup (req, res) {
         return res.status(500).json({ error: "Server error" })
     }
 }
+
+export async function addToGroup (req, res) {
+    const user = req.user
+    const userId = Number(req.params.userId)
+    const groupId =req.params.groupId
+
+    if (!Number.isInteger(userId)) {
+        return res.status(400).json({ error: "User Id is invalid" })
+    }
+
+    if (user.id === userId) return res.status(409).json({ error: "You can't add yourself in a group" })
+
+    try {
+        const group = await prisma.conversation.findUnique({
+            where: { id: groupId }, 
+            include: { participants: true }
+        })
+        if (!group) return res.status(403).json({ error: "You don't have access to this group" })
+        if (group.type !== 'GROUP') return res.status(403).json({ error: "Conversation isn't a group" })
+
+        const self = group.participants.find( p => p.userId === user.id )
+        if (!self) return res.status(403).json({ error: "You don't have access to this group" })
+        if (self.role !== 'ADMIN') {
+            return res.status(403).json({ error: "Only an ADMIN can add users to group (you are not)" })
+        }
+
+        const theUser = await prisma.user.findUnique({ where: { id: userId } })
+        if (!theUser) return res.status(404).json({ error: "The user doesn't exist" })
+
+        if (group.participants.some(p => p.userId === userId )) {
+            return res.status(409).json({ error: "Member already in group" })
+        }
+
+        const added = await prisma.participant.create({
+            data: {
+                convId: groupId, 
+                userId: userId
+            }, 
+            include: {
+                user: { select: { id: true, username: true } }
+            }
+        })
+
+        return res.status(201).json({ 
+            message: 'Member added', 
+            participant: added
+         })        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function removeFromGroup (req, res) {
+    const user = req.user
+    const userId = Number(req.params.userId)
+    const groupId =req.params.groupId
+
+    if (!Number.isInteger(userId)) {
+        return res.status(400).json({ error: "User Id is invalid" })
+    }
+
+    try {
+        const group = await prisma.conversation.findUnique({
+            where: { id: groupId }, 
+            include: { participants: true }
+        })
+        if (!group) return res.status(403).json({ error: "You don't have access to this group" })
+        if (group.type !== 'GROUP') return res.status(403).json({ error: "Conversation isn't a group" })
+
+        const self = group.participants.find( p => p.userId === user.id )
+        if (!self) return res.status(403).json({ error: "You don't have access to this group" })
+
+        if (user.id === userId) {
+            await prisma.participant.delete({
+                where: { convId_userId: { convId: groupId, userId } }
+            })
+
+            return res.status(200).json({ message: 'Member removed' }) 
+        }
+
+        if ( user.id !== userId && self.role !== 'ADMIN') {
+            return res.status(403).json({ error: "Only an ADMIN can remove other users in the group (you are not)" })
+        }
+
+        const other = group.participants.find( p => p.userId === userId )
+        if (!other) return res.status(404).json({ error: "The user is not in the group" })
+
+        await prisma.participant.delete({
+            where: { convId_userId: { convId: groupId, userId } }
+        })
+
+        return res.status(200).json({ message: 'Member removed' })        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
