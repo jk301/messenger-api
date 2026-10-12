@@ -158,10 +158,61 @@ export async function createGroup (req, res) {
     }
 }
 
+export async function makeAdmin (req, res) {
+    const user = req.user
+    const userId = Number(req.params.userId)
+    const groupId = req.params.groupId
+
+    if (!Number.isInteger(userId)) {
+        return res.status(400).json({ error: "User Id is invalid" })
+    }
+
+    if (user.id === userId) return res.status(409).json({ error: "You can't turn yourself ADMIN" })
+
+    try {
+        const group = await prisma.conversation.findUnique({
+            where: { id: groupId }, 
+            include: { participants: true }
+        })
+        if (!group) return res.status(403).json({ error: "You don't have access to this group" })
+        if (group.type !== 'GROUP') return res.status(403).json({ error: "Conversation isn't a group" })
+
+        const self = group.participants.find( p => p.userId === user.id )
+        if (!self) return res.status(403).json({ error: "You don't have access to this group" })
+        if (self.role !== 'ADMIN') {
+            return res.status(403).json({ error: "Only an ADMIN can turn user into ADMIN (you are not)" })
+        }
+
+        const inGroup = group.participants.find( p => p.userId === userId )
+        if (!inGroup) {
+            return res.status(404).json({ error: "Member is not in group" })
+        }
+        if (inGroup.role === 'ADMIN') {
+            return res.status(409).json({ error: "Already an ADMIN" })
+        }
+
+        const turned = await prisma.participant.update({
+            where: { convId_userId: { convId: groupId, userId } }, 
+            data: { role: 'ADMIN' }, 
+            include: {
+                user: { select: { id: true, username: true } }
+            }
+        })
+
+        return res.status(200).json({
+            message: 'Member turned admin', 
+            participant: turned
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
 export async function addToGroup (req, res) {
     const user = req.user
     const userId = Number(req.params.userId)
-    const groupId =req.params.groupId
+    const groupId = req.params.groupId
 
     if (!Number.isInteger(userId)) {
         return res.status(400).json({ error: "User Id is invalid" })
