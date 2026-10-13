@@ -9,11 +9,21 @@ export async function getAllConv (req, res) {
     const user = req.user
 
     try {
-        const conv = await prisma.conversation.findMany({
+        const allConv = await prisma.conversation.findMany({
             where: {
                 participants: {
                     some: { userId: user.id }
                 }
+            }, 
+            include: { participants: { include: { user: { select: { id: true, username: true } } } } }
+        })
+
+        const conv = allConv.map( c => {
+            if (c.type === 'DIRECT') {
+                const otherUser = c.participants.find( u => u.userId !== user.id)
+                return {...c, other: otherUser?.user.username ?? 'Deleted user'}
+            } else {
+                return c
             }
         })
 
