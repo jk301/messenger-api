@@ -15,7 +15,10 @@ export async function getAllConv (req, res) {
                     some: { userId: user.id }
                 }
             }, 
-            include: { participants: { include: { user: { select: { id: true, username: true } } } } }
+            include: {
+                participants: { include: { user: { select: { id: true, username: true } } } }, 
+                messages: { orderBy: { createdAt: 'desc' }, take: 1 }
+            }
         })
 
         const conv = allConv.map( c => {
