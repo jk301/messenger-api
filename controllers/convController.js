@@ -51,14 +51,30 @@ export async function getConv (req, res) {
             })
         }
 
-        const conv = await prisma.conversation.findUnique({
+        let conv = await prisma.conversation.findUnique({
             where: { id: convId }, 
             include: {
-                participants: true, 
-                messages: true
+                participants: { include: { user: { select: { id: true, username: true } } } }, 
+                messages: { include: { sender: { select: { username: true } } } }
             }
         })
         if (!conv) return res.status(404).json({ error: "Conversation doesn't exist." })
+
+        const newMsgs = conv.messages.map( m => {
+            if (m.senderId === user.id) {
+                return {...m, me: true}
+            } else {
+                return m
+            }
+        })
+
+        conv.messages = newMsgs
+
+        if (conv.type === 'DIRECT') {
+            const other = conv.participants.find( u => u.userId !== user.id)
+            const newConv = {...conv, other: other.user.username}
+            return res.status(200).json({ conv: newConv })
+        }
         
         return res.status(200).json({ conv })
     } catch (error) {
@@ -84,13 +100,16 @@ export async function sendMessage (req, res) {
             })
         }
         
-        const message = await prisma.message.create({
+        const result = await prisma.message.create({
             data: {
                 convId, 
                 senderId: user.id, 
                 text
-            }
+            }, 
+            include: { sender: { select: { username: true } } }
         })
+
+        const message = {...result, me: true}
 
         return res.status(201).json({ message })
     } catch (error) {
