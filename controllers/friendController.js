@@ -84,6 +84,7 @@ export async function getAllFriends (req, res) {
             }, 
             select: {
                 id: true, 
+                status: true, 
                 sender: { select: { id: true, username: true } }, 
                 receiver: { select: { id: true, username: true } }
             }
@@ -92,6 +93,7 @@ export async function getAllFriends (req, res) {
         const friends = result.map(f => { 
             return { 
                 reqId: f.id, 
+                status: f.status,
                 friend: f.sender.id === user.id ? f.receiver : f.sender 
             }
         })
@@ -116,6 +118,7 @@ export async function getAllSentReq (req, res) {
             }, 
             select: {
                 id: true, 
+                status: true,
                 receiver: { select: { id: true, username: true } }
             }
         })
@@ -123,6 +126,7 @@ export async function getAllSentReq (req, res) {
         const friends = result.map(f => { 
             return { 
                 reqId: f.id, 
+                status: f.status,
                 friend: f.receiver
             }
         })
@@ -147,6 +151,7 @@ export async function getFriendsRejected (req, res) {
             }, 
             select: {
                 id: true, 
+                status: true,
                 sender: { select: { id: true, username: true } }, 
             }
         })
@@ -154,6 +159,7 @@ export async function getFriendsRejected (req, res) {
         const friends = result.map(f => { 
             return { 
                 reqId: f.id, 
+                status: f.status,
                 friend: f.sender 
             }
         })
@@ -178,6 +184,7 @@ export async function getSentRejected (req, res) {
             }, 
             select: {
                 id: true, 
+                status: true,
                 receiver: { select: { id: true, username: true } }, 
             }
         })
@@ -185,6 +192,7 @@ export async function getSentRejected (req, res) {
         const friends = result.map(f => { 
             return { 
                 reqId: f.id, 
+                status: f.status,
                 friend: f.receiver 
             }
         })
@@ -209,6 +217,7 @@ export async function getAllfriendReq (req, res) {
             }, 
             select: {
                 id: true, 
+                status: true,
                 sender: { select: { id: true, username: true } }, 
             }
         })
@@ -216,6 +225,7 @@ export async function getAllfriendReq (req, res) {
         const friends = result.map(f => { 
             return { 
                 reqId: f.id, 
+                status: f.status,
                 friend: f.sender 
             }
         })
