@@ -27,7 +27,25 @@ export async function searchUsers (req, res) {
             take: 30
         })
 
-        return res.status(200).json({ result })
+        let keys = result.map( u => makeDirectKey(user.id, u.id))
+
+        const friendsAlr = await prisma.friend.findMany({ where: { pairKey: { in: keys } } })
+
+        const statusMap =  new Map()
+        friendsAlr.forEach( f => statusMap.set(f.pairKey, f.status))
+
+        const arr = result.map( u => {
+            const key = makeDirectKey(user.id, u.id)
+            const alr = statusMap.get(key)
+
+            if (alr) {
+                return {...u, status: alr}
+            } else {
+                return {...u}
+            }
+        })
+
+        return res.status(200).json({ result: arr })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
