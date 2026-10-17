@@ -143,7 +143,7 @@ export async function createDirectConv (req, res) {
             return res.status(403).json({ error: "Friend request needs to be accepted for conversation" })
         }
         
-        const directConv = await prisma.conversation.upsert({
+        const conv = await prisma.conversation.upsert({
             where: { directKey: key }, 
             update: {}, 
             create: {
@@ -156,7 +156,7 @@ export async function createDirectConv (req, res) {
             include: { participants: true, messages: true }
         })
 
-        return res.status(200).json({ directConv })
+        return res.status(200).json({ conv })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
