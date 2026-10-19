@@ -75,8 +75,33 @@ export async function getConv (req, res) {
             const newConv = {...conv, other: other.user.username}
             return res.status(200).json({ conv: newConv })
         }
+
+        if (conv.type === 'GROUP') {
+            const self = conv.participants.find( u => u.userId === user.id)
+            if (self.role === 'ADMIN') {
+                conv.isAdmin = true
+            }
+        }
         
         return res.status(200).json({ conv })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function getWhereAdmin (req, res) {
+    const user = req.user
+
+    try {
+        let convs = await prisma.conversation.findMany({
+            where: {
+                participants: { some: { userId: user.id, role: 'ADMIN' } }, 
+                type: 'GROUP'
+            }
+        })
+        
+        return res.status(200).json({ convs })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
