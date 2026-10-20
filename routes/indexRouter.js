@@ -5,7 +5,8 @@ import {
     getProfile,
     changePassword,
     changeUsername,
-    deleteUser, 
+    deleteUser,
+    changeEmail, 
 } from "../controllers/indexController.js"; 
 import {
     getAllConv, 
@@ -44,6 +45,7 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 
 indexRouter.get('/profile', passport.authenticate('jwt', { session: false }), getProfile)
 indexRouter.patch('/profile/change/username', passport.authenticate('jwt', { session: false }), changeUsername)
+indexRouter.patch('/profile/change/email', passport.authenticate('jwt', { session: false }), changeEmail)
 indexRouter.patch('/profile/change/password', passport.authenticate('jwt', { session: false }), changePassword)
 indexRouter.delete('/profile', passport.authenticate('jwt', { session: false }), deleteUser)
 
