@@ -21,7 +21,8 @@ export async function searchUsers (req, res) {
             },
             select: {
                 id: true, 
-                username: true
+                username: true, 
+                avatarURL: true
             }, 
             orderBy: { username: 'asc' }, 
             take: 30
@@ -103,8 +104,8 @@ export async function getAllFriends (req, res) {
             select: {
                 id: true, 
                 status: true, 
-                sender: { select: { id: true, username: true } }, 
-                receiver: { select: { id: true, username: true } }
+                sender: { select: { id: true, username: true, avatarURL: true } }, 
+                receiver: { select: { id: true, username: true, avatarURL: true } }
             }
         })
 
@@ -137,7 +138,7 @@ export async function getAllSentReq (req, res) {
             select: {
                 id: true, 
                 status: true,
-                receiver: { select: { id: true, username: true } }
+                receiver: { select: { id: true, username: true, avatarURL: true } }
             }
         })
 
@@ -170,7 +171,7 @@ export async function getFriendsRejected (req, res) {
             select: {
                 id: true, 
                 status: true,
-                sender: { select: { id: true, username: true } }, 
+                sender: { select: { id: true, username: true, avatarURL: true } }, 
             }
         })
 
@@ -203,7 +204,7 @@ export async function getSentRejected (req, res) {
             select: {
                 id: true, 
                 status: true,
-                receiver: { select: { id: true, username: true } }, 
+                receiver: { select: { id: true, username: true, avatarURL: true } }, 
             }
         })
 
@@ -236,7 +237,7 @@ export async function getAllfriendReq (req, res) {
             select: {
                 id: true, 
                 status: true,
-                sender: { select: { id: true, username: true } }, 
+                sender: { select: { id: true, username: true, avatarURL: true } }, 
             }
         })
 

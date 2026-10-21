@@ -16,7 +16,7 @@ export async function getAllConv (req, res) {
                 }
             }, 
             include: {
-                participants: { include: { user: { select: { id: true, username: true } } } }, 
+                participants: { include: { user: { select: { id: true, username: true, avatarURL: true } } } }, 
                 messages: { orderBy: { createdAt: 'desc' }, take: 1 }
             }
         })
@@ -24,7 +24,7 @@ export async function getAllConv (req, res) {
         const conv = allConv.map( c => {
             if (c.type === 'DIRECT') {
                 const otherUser = c.participants.find( u => u.userId !== user.id)
-                return {...c, other: otherUser?.user.username ?? 'Deleted user'}
+                return {...c, other: otherUser?.user.username ?? 'Deleted user', otherURL: otherUser.user.avatarURL}
             } else {
                 return c
             }
@@ -54,7 +54,7 @@ export async function getConv (req, res) {
         let conv = await prisma.conversation.findUnique({
             where: { id: convId }, 
             include: {
-                participants: { include: { user: { select: { id: true, username: true } } } }, 
+                participants: { include: { user: { select: { id: true, username: true, avatarURL: true } } } }, 
                 messages: { include: { sender: { select: { username: true } } } }
             }
         })
@@ -72,7 +72,7 @@ export async function getConv (req, res) {
 
         if (conv.type === 'DIRECT') {
             const other = conv.participants.find( u => u.userId !== user.id)
-            const newConv = {...conv, other: other.user.username}
+            const newConv = {...conv, other: other.user.username, otherURL: other.user.avatarURL}
             return res.status(200).json({ conv: newConv })
         }
 

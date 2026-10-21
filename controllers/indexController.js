@@ -59,7 +59,7 @@ export async function getProfile (req, res) {
     try {
         const profile = await prisma.user.findUnique({
             where: { id: user.id }, 
-            select: { id: true, username: true, email: true }
+            select: { id: true, username: true, email: true, avatarURL: true }
         })
 
         if (!profile) return res.status(401).json({ error: "Profile data is not available" })
@@ -105,7 +105,7 @@ export async function changePassword (req, res) {
         const updated = await prisma.user.update({
             where: { id: user.id }, 
             data: { hash: hashed }, 
-            select: { id: true, username: true, email: true }
+            select: { id: true, username: true, email: true, avatarURL: true }
         })
         
         return res.status(200).json({ message: "Password updated", updated })
@@ -136,7 +136,7 @@ export async function changeEmail (req, res) {
         const updated = await prisma.user.update({
             where: { id: user.id }, 
             data: { email }, 
-            select: { id: true, username: true, email: true }
+            select: { id: true, username: true, email: true, avatarURL: true }
         })
         
         return res.status(200).json({ message: "Username updated", updated })
@@ -167,7 +167,7 @@ export async function changeUsername (req, res) {
         const updated = await prisma.user.update({
             where: { id: user.id }, 
             data: { username }, 
-            select: { id: true, username: true, email: true }
+            select: { id: true, username: true, email: true, avatarURL: true }
         })
         
         return res.status(200).json({ message: "Username updated", updated })
