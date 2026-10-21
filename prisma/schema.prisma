@@ -47,6 +47,7 @@ model Conversation {
   id    String    @id @default(cuid())
   type    ConvType    @default(DIRECT)
   name    String?
+  avatarURL   String?
   directKey   String?   @unique
   createdAt   DateTime    @default(now())
   participants participant[]
