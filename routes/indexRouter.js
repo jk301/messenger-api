@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { upload } from "../lib/multer.js";
 import {
     register, 
     login,
@@ -6,7 +7,8 @@ import {
     changePassword,
     changeUsername,
     deleteUser,
-    changeEmail, 
+    changeEmail,
+    changeAvatar, 
 } from "../controllers/indexController.js"; 
 import {
     getAllConv, 
@@ -44,6 +46,7 @@ indexRouter.post('/login', passport.authenticate('local', { session: false }), l
 // Profile 
 
 indexRouter.get('/profile', passport.authenticate('jwt', { session: false }), getProfile)
+indexRouter.patch('/profile/change/avatar', passport.authenticate('jwt', { session: false }), upload.single('avatar'), changeAvatar)
 indexRouter.patch('/profile/change/username', passport.authenticate('jwt', { session: false }), changeUsername)
 indexRouter.patch('/profile/change/email', passport.authenticate('jwt', { session: false }), changeEmail)
 indexRouter.patch('/profile/change/password', passport.authenticate('jwt', { session: false }), changePassword)

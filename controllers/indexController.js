@@ -1,7 +1,7 @@
 import { prisma } from "../lib/prisma.js"
 import { genPass } from "../lib/utils.js"
 import jwt from 'jsonwebtoken'
-
+import { uploadAvatar } from "../lib/cloudinary.js"
 
 export async function register (req, res) {
     const email = req.body.email
@@ -65,6 +65,27 @@ export async function getProfile (req, res) {
         if (!profile) return res.status(401).json({ error: "Profile data is not available" })
 
         return res.status(200).json({ profile })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function changeAvatar (req, res) {
+    const user = req.user 
+
+    if (!req.file) return res.status(400).json({ error: 'Image file is required' })
+
+    try {
+        const result = await uploadAvatar(req.file.buffer, user.id)
+
+        const updated = await prisma.user.update({
+            where: { id: user.id }, 
+            data: { avatarURL: result.secure_url }, 
+            select: { id: true, username: true, avatarURL: true, email: true }
+        })
+
+        return res.status(200).json({ message: "Avatar updated", updated })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
