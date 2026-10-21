@@ -20,7 +20,8 @@ import {
     removeFromGroup,
     deleteGroup,
     makeAdmin,
-    getWhereAdmin
+    getWhereAdmin,
+    updateGroupAvatar
 } from '../controllers/convController.js'
 import {
     sendFriendReq, 
@@ -67,6 +68,7 @@ indexRouter.get('/conv/group/admin', passport.authenticate('jwt', { session: fal
 indexRouter.post('/conv/group/create', passport.authenticate('jwt', { session: false }), createGroup)
 indexRouter.post('/conv/:groupId/add/:userId', passport.authenticate('jwt', { session: false }), addToGroup)
 indexRouter.post('/conv/:groupId/admin/:userId', passport.authenticate('jwt', { session: false }), makeAdmin)
+indexRouter.patch('/conv/:groupId/avatar', passport.authenticate('jwt', { session: false }), upload.single('avatar'), updateGroupAvatar)
 indexRouter.post('/conv/:groupId/remove/:userId', passport.authenticate('jwt', { session: false }), removeFromGroup)
 indexRouter.delete('/conv/:groupId', passport.authenticate('jwt', { session: false }), deleteGroup)
 

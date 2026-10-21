@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js"
-
+import { uploadGroupAvatar } from "../lib/cloudinary.js"
 
 function makeDirectKey (a, b) {
     return [a, b].sort((x, y) => x - y).join(':')
@@ -260,6 +260,47 @@ export async function makeAdmin (req, res) {
             message: 'Member turned admin', 
             participant: turned
         })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function updateGroupAvatar (req, res) {
+    const user = req.user
+    const groupId = req.params.groupId
+
+    if (!req.file) return res.status(400).json({ error: 'Image file is required' })
+
+    try {
+        const group = await prisma.conversation.findUnique({
+            where: { id: groupId }, 
+            include: { participants: true }
+        })
+        if (!group) return res.status(403).json({ error: "You don't have access to this group" })
+        if (group.type !== 'GROUP') return res.status(403).json({ error: "Conversation isn't a group" })
+
+        const self = group.participants.find( p => p.userId === user.id )
+        if (!self) return res.status(403).json({ error: "You don't have access to this group" })
+        if (self.role !== 'ADMIN') {
+            return res.status(403).json({ error: "Only an ADMIN can change group avatar (you are not)" })
+        }
+
+        const result = await uploadGroupAvatar(req.file.buffer, groupId)
+
+
+        const updated = await prisma.conversation.update({
+            where: { id: groupId }, 
+            data: { avatarURL: result.secure_url }, 
+            include: {
+                    participants: { include: { user: { select: { id: true, username: true, avatarURL: true } } } }, 
+                    messages: { include: { sender: { select: { username: true } } } }
+                }
+        })
+
+        updated.isAdmin = true
+        
+        return res.status(200).json({ message: "Avatar updated successfully", updated })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
