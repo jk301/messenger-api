@@ -55,7 +55,7 @@ export async function getConv (req, res) {
             where: { id: convId }, 
             include: {
                 participants: { include: { user: { select: { id: true, username: true, avatarURL: true } } } }, 
-                messages: { include: { sender: { select: { username: true } } } }
+                messages: { include: { sender: { select: { username: true, avatarURL: true } } } }
             }
         })
         if (!conv) return res.status(404).json({ error: "Conversation doesn't exist." })
