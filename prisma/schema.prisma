@@ -71,7 +71,9 @@ model message {
   id    Int   @id @default(autoincrement())
   convId    String
   senderId    Int? 
-  text    String 
+  text    String? 
+  fileName    String? 
+  fileURL   String? 
   createdAt   DateTime    @default(now())
 
   conversation    Conversation    @relation(fields: [convId], references: [id], onDelete: Cascade)
