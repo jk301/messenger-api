@@ -74,6 +74,7 @@ model message {
   text    String? 
   fileName    String? 
   fileURL   String? 
+  filePublicId    String?
   createdAt   DateTime    @default(now())
 
   conversation    Conversation    @relation(fields: [convId], references: [id], onDelete: Cascade)
