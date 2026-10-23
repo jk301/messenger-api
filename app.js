@@ -26,7 +26,7 @@ app.use('/', indexRouter)
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(413).json({ error: "Image must be 2 MB or smaller" })
+            return res.status(413).json({ error: "Image/file must be 5 MB or smaller" })
         }
         return res.status(400).json({ error: err.message })
     }
