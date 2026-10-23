@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma.js"
-import { uploadGroupAvatar } from "../lib/cloudinary.js"
+import { uploadFile, uploadGroupAvatar } from "../lib/cloudinary.js"
 
 function makeDirectKey (a, b) {
     return [a, b].sort((x, y) => x - y).join(':')
@@ -131,7 +131,47 @@ export async function sendMessage (req, res) {
                 senderId: user.id, 
                 text
             }, 
-            include: { sender: { select: { username: true } } }
+            include: { sender: { select: { username: true, avatarURL: true } } }
+        })
+
+        const message = {...result, me: true}
+
+        return res.status(201).json({ message })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Server error" })
+    }
+}
+
+export async function sendFile (req, res) {
+    const user = req.user
+    const { convId } = req.params
+
+    if (!req.file) return res.status(400).json({ error: "File body is empty" })
+    
+    try {
+        const isMember = await prisma.participant.findUnique({
+            where: { convId_userId: { convId, userId: user.id } }
+        })
+        if (!isMember) {
+            return res.status(403).json({
+                error: 'You are not authorized for sending message in this conversation.' 
+            })
+        }
+
+        const upload = await uploadFile(req.file.buffer)
+
+        // req.file.originalname
+        
+        const result = await prisma.message.create({
+            data: {
+                convId, 
+                senderId: user.id, 
+                fileName: req.file.originalname, 
+                fileURL: upload.secure_url, 
+                filePublicId: upload.public_id
+            }, 
+            include: { sender: { select: { username: true, avatarURL: true } } }
         })
 
         const message = {...result, me: true}

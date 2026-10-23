@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { upload } from "../lib/multer.js";
+import { upload, uploadFile } from "../lib/multer.js";
 import {
     register, 
     login,
@@ -21,7 +21,8 @@ import {
     deleteGroup,
     makeAdmin,
     getWhereAdmin,
-    updateGroupAvatar
+    updateGroupAvatar,
+    sendFile
 } from '../controllers/convController.js'
 import {
     sendFriendReq, 
@@ -61,6 +62,7 @@ indexRouter.get('/conv/:convId', passport.authenticate('jwt', { session: false }
 indexRouter.post('/conv/direct/create/:otherId',passport.authenticate('jwt', { session: false }), 
 createDirectConv )
 indexRouter.post('/conv/:convId/message', passport.authenticate('jwt', { session: false }), sendMessage)
+indexRouter.post('/conv/:convId/file', passport.authenticate('jwt', { session: false }),  uploadFile.single('file'), sendFile)
 
 // Group
 
