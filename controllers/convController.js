@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma.js"
 import { uploadFile, uploadGroupAvatar } from "../lib/cloudinary.js"
+import { getIO } from "../lib/socket.js"
 
 function makeDirectKey (a, b) {
     return [a, b].sort((x, y) => x - y).join(':')
@@ -134,6 +135,9 @@ export async function sendMessage (req, res) {
             include: { sender: { select: { username: true, avatarURL: true } } }
         })
 
+        console.log('emitting to', `conv:${convId}`, 'members:', getIO().sockets.adapter.rooms.get(`conv:${convId}`)?.size)
+        getIO().to(`conv:${convId}`).emit('newMessage', result)
+
         const message = {...result, me: true}
 
         return res.status(201).json({ message })
@@ -173,6 +177,8 @@ export async function sendFile (req, res) {
             }, 
             include: { sender: { select: { username: true, avatarURL: true } } }
         })
+
+        getIO().to(`conv:${convId}`).emit('newMessage', result)
 
         const message = {...result, me: true}
 
