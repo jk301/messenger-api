@@ -137,10 +137,6 @@ export async function sendMessage (req, res) {
 
         console.log('emitting to', `conv:${convId}`, 'members:', getIO().sockets.adapter.rooms.get(`conv:${convId}`)?.size)
         getIO().to(`conv:${convId}`).emit('newMessage', result)
-
-        const message = {...result, me: true}
-
-        return res.status(201).json({ message })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
@@ -179,10 +175,6 @@ export async function sendFile (req, res) {
         })
 
         getIO().to(`conv:${convId}`).emit('newMessage', result)
-
-        const message = {...result, me: true}
-
-        return res.status(201).json({ message })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
