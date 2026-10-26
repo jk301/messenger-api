@@ -69,7 +69,7 @@ io.use((socket, next) => {
 
 io.on( 'connection', async (socket) => {
     try {
-        socket.join(`user: ${socket.userId}`)
+        socket.join(`user:${socket.userId}`)
 
         const rows = await prisma.participant.findMany({
             where: { userId: socket.userId }, 
