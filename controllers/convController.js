@@ -17,8 +17,14 @@ export async function getAllConv (req, res) {
                 }
             }, 
             include: {
-                participants: { include: { user: { select: { id: true, username: true, avatarURL: true } } } }, 
-                messages: { orderBy: { createdAt: 'desc' }, take: 1 }
+                participants: {
+                    include: { user: { select: { id: true, username: true, avatarURL: true } } } 
+                }, 
+                messages: {
+                    orderBy: { createdAt: 'desc' }, 
+                    take: 1, 
+                    include: { sender: { select: { username: true } } } 
+                }
             }
         })
 
