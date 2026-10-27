@@ -67,6 +67,36 @@ io.use((socket, next) => {
     }
 })
 
+const onlineNow = new Map()
+
+function addConn (userId) {
+    const count = onlineNow.get(userId) ?? 0
+    onlineNow.set(userId, count + 1)
+    return count === 0
+}
+
+function removeConn (userId) {
+    const count = onlineNow.get(userId) ?? 0
+    if (count <= 1) {
+        onlineNow.delete(userId)
+        return true
+    }
+    onlineNow.set(userId, count - 1)
+    return false
+}
+
+async function getFriendsId (userId) {
+    const rows = await prisma.friend.findMany({
+        where: {
+            status: 'ACCEPTED', 
+            OR: [{ senderId: userId }, { receiverId: userId }]
+        }, 
+        select: { senderId: true, receiverId: true }
+    })
+
+    return rows.map( f => f.senderId === userId ? f.receiverId : f.senderId )
+}
+
 io.on( 'connection', async (socket) => {
     try {
         socket.join(`user:${socket.userId}`)
@@ -78,6 +108,33 @@ io.on( 'connection', async (socket) => {
 
         rows.forEach( r => socket.join(`conv:${r.convId}`))
         console.log('user', socket.userId, 'joined', socket.rooms)
+
+        const cameOnline = addConn(socket.userId)
+        const friendsId = await getFriendsId(socket.userId)
+
+        if (cameOnline) {
+            friendsId.forEach(
+                id => io.to(`user:${id}`).emit('presence', { userId: socket.userId, online: true }) 
+            )
+        }
+
+        const onlineFriends = friendsId.filter( id => onlineNow.has(id))
+        socket.emit('onlineFriends', onlineFriends)
+
+        socket.on('disconnect', async () => {
+            try {
+                const wentOff = await removeConn(socket.userId)
+                if (wentOff) {
+                    const fIds = await getFriendsId(socket.userId)
+                    fIds.forEach(
+                        id => io.to(`user:${id}`).emit('presence', { userId: socket.userId, online: false })
+                    )
+                }
+                console.log('disconnect', socket.userId, wentOff)
+            } catch (error) {
+                console.log(error)
+            }
+        })
     } catch (error) {
         console.log(error)
     }
