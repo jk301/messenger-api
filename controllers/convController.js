@@ -143,6 +143,7 @@ export async function sendMessage (req, res) {
 
         console.log('emitting to', `conv:${convId}`, 'members:', getIO().sockets.adapter.rooms.get(`conv:${convId}`)?.size)
         getIO().to(`conv:${convId}`).emit('newMessage', result)
+        return res.status(200).json({ message: 'Message received in the server' })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
@@ -181,6 +182,7 @@ export async function sendFile (req, res) {
         })
 
         getIO().to(`conv:${convId}`).emit('newMessage', result)
+        return res.status(200).json({ message: 'Message/file received in the server' })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Server error" })
