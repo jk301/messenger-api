@@ -79,7 +79,11 @@ export async function getConv (req, res) {
 
         if (conv.type === 'DIRECT') {
             const other = conv.participants.find( u => u.userId !== user.id)
-            const newConv = {...conv, other: other.user.username, otherURL: other.user.avatarURL}
+            const newConv = {
+                ...conv, other: other.user.username, 
+                otherURL: other.user.avatarURL, 
+                otherId: other.userId
+            }
             return res.status(200).json({ conv: newConv })
         }
 
