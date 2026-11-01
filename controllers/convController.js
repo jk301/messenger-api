@@ -145,7 +145,6 @@ export async function sendMessage (req, res) {
             include: { sender: { select: { username: true, avatarURL: true } } }
         })
 
-        console.log('emitting to', `conv:${convId}`, 'members:', getIO().sockets.adapter.rooms.get(`conv:${convId}`)?.size)
         getIO().to(`conv:${convId}`).emit('newMessage', result)
         return res.status(200).json({ message: 'Message received in the server' })
     } catch (error) {

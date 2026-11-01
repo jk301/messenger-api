@@ -142,9 +142,3 @@ io.on( 'connection', async (socket) => {
 
 
 server.listen(PORT, () => console.log(`Running on Port: ${PORT}`))
-
-
-// app.listen(PORT, (err) => {
-//     console.log(`Running on Port: ${PORT}`)
-//     if (err) throw err
-// })
