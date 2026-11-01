@@ -2,8 +2,10 @@
   "name": "messenger-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js", 
+    "build": "npm install && npx prisma generate && npx prisma migrate deploy", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,7 +14,8 @@
   "type": "module",
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
-    "@prisma/client": "^7.10.0",
+    "@prisma/client": "^7.10.0", 
+    "prisma": "^7.10.0", 
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
@@ -27,6 +30,5 @@
     "socket.io": "^4.8.4"
   },
   "devDependencies": {
-    "prisma": "^7.10.0"
   }
 }
